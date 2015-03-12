@@ -68,7 +68,7 @@ def process_file(file_name)
 
       user_traces.each do |user_id, times|
         times.each do |time_slice, arr_sec_pageviews|
-          if time_slice.to_i >= 20*4 and time_slice.to_i <= 23*4
+          if time_slice.to_i >= 20*4 and time_slice.to_i < 23*4
             hash_unique_users_google_per_day[date].push [user_id, arr_sec_pageviews[0]]
           end
         end
