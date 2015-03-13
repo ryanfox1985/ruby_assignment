@@ -1,26 +1,10 @@
 require 'base64'
 require 'zlib'
 require 'json'
+require 'csv'
 
 program_starts = Time.now
 puts "Begin ===>>#{program_starts}"
-
-def get_more_data(fileObj)
-  appended_data = ''
-
-  end_data = false
-  while !end_data
-    line = fileObj.gets
-
-    if line.include?('"')
-      end_data = true
-    else
-      appended_data += line[0..-2]
-    end
-  end
-
-  appended_data
-end
 
 def uncompress_block(block)
   decoded = Base64.decode64(block)
@@ -42,47 +26,42 @@ def process_file(file_name)
   avg_pageviews_facebook = 0
   num_pageviews_facebook = 0
 
-  File.open(file_name, 'r') do |file|
-    while line = file.gets
+  CSV.foreach(file_name, { col_sep: "\t" }) do |row|
+    domain = row[0]
+    date = row[1]
+    block = row[2]
 
-      domain = line.split(' ')[0]
-      date = line.split(' ')[1]
-      block = line.split(' ')[2][1..-1]
+    strJSON = uncompress_block(block)
+    user_traces = JSON.parse(strJSON)
 
-      block = block + get_more_data(file)
+    if domain.include?('facebook.com')
+      hash_unique_users_facebook_per_day[date] = {} if hash_unique_users_facebook_per_day[date].nil?
 
-      strJSON = uncompress_block(block)
-      user_traces = JSON.parse(strJSON)
+      user_traces.each do |user_id, times|
+        hash_unique_users_facebook[user_id] = true
+        hash_unique_users_facebook_per_day[date][user_id] = true
 
-      if domain.include?('facebook.com')
-        hash_unique_users_facebook_per_day[date] = {}
-
-        user_traces.each do |user_id, times|
-          hash_unique_users_facebook[user_id] = true
-          hash_unique_users_facebook_per_day[date][user_id] = true
-
-          times.each do |time_slice, arr_sec_pageviews|
-            arr_pageviews_facebook << arr_sec_pageviews[1].to_i
-            avg_pageviews_facebook += arr_sec_pageviews[1].to_i
-            num_pageviews_facebook += 1
-          end
+        times.each do |time_slice, arr_sec_pageviews|
+          arr_pageviews_facebook << arr_sec_pageviews[1].to_i
+          avg_pageviews_facebook += arr_sec_pageviews[1].to_i
+          num_pageviews_facebook += 1
         end
       end
-
-      if domain.include?('google.')
-        hash_users_google_per_day[date] = []
-
-        user_traces.each do |user_id, times|
-          times.each do |time_slice, arr_sec_pageviews|
-            if time_slice.to_i >= 20*4 && time_slice.to_i < 23*4
-              hash_users_google_per_day[date] << [user_id, arr_sec_pageviews[0]]
-            end
-          end
-        end
-      end
-
-      puts "Date and domain => #{date} - #{domain}"
     end
+
+    if domain.include?('google.')
+      hash_users_google_per_day[date] = [] if hash_users_google_per_day[date].nil?
+
+      user_traces.each do |user_id, times|
+        times.each do |time_slice, arr_sec_pageviews|
+          if time_slice.to_i >= 20*4 && time_slice.to_i < 23*4
+            hash_users_google_per_day[date] << [user_id, arr_sec_pageviews[0]]
+          end
+        end
+      end
+    end
+
+    puts "Date and domain => #{date} - #{domain}"
   end
 
   puts "\n\n"
