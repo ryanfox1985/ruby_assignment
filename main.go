@@ -50,8 +50,8 @@ func process_file(file_name string) {
   var hash_unique_users_facebook_per_day map[string]map[string]bool
   hash_unique_users_facebook_per_day = make(map[string]map[string]bool)
 
-  var hash_users_google_per_day map[string]interface{}
-  hash_users_google_per_day = make(map[string]interface{})
+  var hash_users_google_per_day map[string][]interface{}
+  hash_users_google_per_day = make(map[string][]interface{})
 
   csvfile, err := os.Open(file_name)
 
@@ -107,21 +107,18 @@ func process_file(file_name string) {
 
 
     if strings.Contains(domain, "google.") {
-      _, exist := hash_users_google_per_day[date]
-      if !exist {
-        hash_users_google_per_day[date] = make(map[string][]int)
-      }
-
       for user_id, times_interface := range user_traces {
-        hash_unique_users_facebook[user_id] = true
-        hash_unique_users_facebook_per_day[date][user_id] = true
-
         times := times_interface.(map[string]interface{})
         for time_slice_str, arr_sec_pageviews_interface := range times {
           time_slice, _ := strconv.ParseInt(time_slice_str, 0, 64)
           if time_slice >= 20*4 && time_slice < 23*4 {
-            fmt.Printf("Date and domain => %s - %s\n", time_slice, arr_sec_pageviews_interface)
-            //hash_users_google_per_day[date] = append(hash_users_google_per_day[date], arr_sec_pageviews_interface)
+            arr_sec_pageviews := arr_sec_pageviews_interface.([]interface {})
+
+            var arr_sec_pageviews_save []interface{}
+            arr_sec_pageviews_save = append(arr_sec_pageviews_save, user_id)
+            arr_sec_pageviews_save = append(arr_sec_pageviews_save, arr_sec_pageviews[0].(float64))
+
+            hash_users_google_per_day[date] = append(hash_users_google_per_day[date], arr_sec_pageviews_save)
           }
         }
       }
@@ -142,20 +139,27 @@ func process_file(file_name string) {
   }
 
   fmt.Printf("2. Per­day average number of seconds spent on Google properties (google.*) between 20:00 and 23:00, by people that also have visited facebook.com.\n")
-  // hash_users_google_per_day.each do |date, arr_users_secs|
-  //   average = 0
-  //   counter = 0
-  //
-  //   arr_users_secs.each do |user_sec|
-  //     if hash_unique_users_facebook.has_key? user_sec[0]
-  //       average += user_sec[1].to_i
-  //       counter += 1
-  //     end
-  //   end
-  //
-  //   average /= counter.to_f if counter > 0
-  //   puts "Date: #{date} -- avg seconds: #{average}"
-  // end
+  for date, arr_users_secs := range hash_users_google_per_day {
+    average := float64(0)
+    counter := 0
+
+    for _, user_sec_interface := range arr_users_secs {
+      user_sec := user_sec_interface.([]interface {})
+
+      _, exist := hash_unique_users_facebook[user_sec[0].(string)]
+      if exist {
+        average += user_sec[1].(float64)
+        counter += 1
+      }
+    }
+
+    if counter > 0 {
+      average /= float64(counter)
+    }
+
+    fmt.Printf("Date: %s -- avg seconds: %f\n", date, average)
+  }
+
 
 
   fmt.Printf("3. Calculate the standard deviation of the amount of pageviews on facebook.com, based on all data.\n")
