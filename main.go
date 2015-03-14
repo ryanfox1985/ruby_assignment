@@ -40,8 +40,8 @@ func uncompress_block(block string) string {
 }
 
 func process_file(file_name string) {
-  var arr_pageviews_facebook []int
-  avg_pageviews_facebook := 0
+  var arr_pageviews_facebook []float64
+  avg_pageviews_facebook := float64(0)
   num_pageviews_facebook := 0
 
   var hash_unique_users_facebook map[string]bool
@@ -98,8 +98,8 @@ func process_file(file_name string) {
         for _, arr_sec_pageviews_interface := range times {
           arr_sec_pageviews := arr_sec_pageviews_interface.([]interface {})
 
-          arr_pageviews_facebook = append(arr_pageviews_facebook, int(arr_sec_pageviews[1].(float64)))
-          avg_pageviews_facebook += int(arr_sec_pageviews[1].(float64))
+          arr_pageviews_facebook = append(arr_pageviews_facebook, arr_sec_pageviews[1].(float64))
+          avg_pageviews_facebook += arr_sec_pageviews[1].(float64)
           num_pageviews_facebook += 1
         }
       }
@@ -127,7 +127,7 @@ func process_file(file_name string) {
       }
     }
 
-    fmt.Printf("Date and domain => %s - %s\n", domain, date)
+    fmt.Printf("Date and domain => %s - %s\n", date, domain)
   }
 
 
@@ -160,22 +160,26 @@ func process_file(file_name string) {
 
   fmt.Printf("3. Calculate the standard deviation of the amount of pageviews on facebook.com, based on all data.\n")
   if num_pageviews_facebook > 0 {
-    avg_pageviews_facebook /= num_pageviews_facebook
+    avg_pageviews_facebook /= float64(num_pageviews_facebook)
   }
 
   sum_squares := float64(0)
-  for amount := range arr_pageviews_facebook {
+  for _, amount := range arr_pageviews_facebook {
     diff := amount - avg_pageviews_facebook
-    sum_squares += float64(math.Pow(float64(diff), float64(2)))
+    sum_squares += float64(math.Pow(diff, float64(2)))
   }
 
   std_pageviews_facebook := float64(0)
-  // if num_pageviews_facebook > 0 {
-  //   std_pageviews_facebook := math.Sqrt(float64(sum_squares)/float64(num_pageviews_facebook))
-  // }
+  if num_pageviews_facebook > 0 {
+    std_pageviews_facebook := math.Sqrt(float64(sum_squares)/float64(num_pageviews_facebook))
 
-  fmt.Printf("Avg pageviews: %d\n", avg_pageviews_facebook)
-  fmt.Printf("Std pageviews: %d\n", std_pageviews_facebook)
+    fmt.Printf("Avg pageviews: %f\n", avg_pageviews_facebook)
+    fmt.Printf("Std pageviews: %f\n", std_pageviews_facebook)
+  } else {
+    fmt.Printf("Avg pageviews: %f\n", avg_pageviews_facebook)
+    fmt.Printf("Std pageviews: %f\n", std_pageviews_facebook)
+  }
+
 }
 
 func main() {
