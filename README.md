@@ -15,4 +15,6 @@ RUN
 $ ruby main.rb
 ```
 
-...it takes some time you can go to fridge and get a beer.
+```
+$ go run main.go
+```
