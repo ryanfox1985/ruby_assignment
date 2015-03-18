@@ -25,10 +25,4 @@ $ go run main.go #48.464094935 with go1.4.2
 
 =========================
 
-                   ＿＿＿＿＿
-　　　　　　　　　　　／　GO　　／.|
-　　　　　________| ￣［1］￣ |.|________
-　　　　／ 　Ruby |    　　　 |／ Python／|
-　　　　|￣［2］￣￣ 　　　　 　 ￣［3］￣￣| |
-　　　　|　 　 　 　           　　 　   |／
-￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
+![alt tag](https://raw.githubusercontent.com/ryanfox1985/ruby_assignment/master/podium.png)
