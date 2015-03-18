@@ -12,9 +12,23 @@ In Ruby or Go, one or more programs that fulfils the following requirements:
 RUN
 =========================
 ```
-$ ruby main.rb
+$ ruby main.rb #84.242788 with ruby 2.1.0p0
 ```
 
 ```
-$ go run main.go
+$ python main.py #0:01:44.991671 with python 2.7.6
 ```
+
+```
+$ go run main.go #48.464094935 with go1.4.2
+```
+
+=========================
+
+                   ＿＿＿＿＿
+　　　　　　　　　　　／　GO　　／.|
+　　　　　________| ￣［1］￣ |.|________
+　　　　／ 　Ruby |    　　　 |／ Python／|
+　　　　|￣［2］￣￣ 　　　　 　 ￣［3］￣￣| |
+　　　　|　 　 　 　           　　 　   |／
+￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
